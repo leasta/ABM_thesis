@@ -19,8 +19,8 @@ import pandas as pd
 import matplotlib.gridspec as gridspec
 
 
-animate_simulation=True #Save a scatterplot for each time step. 
-#animate_simulation==False # Faster simulation
+#animate_simulation=True #Save a scatterplot for each time step. 
+animate_simulation=False # Faster simulation
 
 ####################### SCATTER DATA ###########################################
 def scatter_receptor_il2(mylist):
@@ -33,16 +33,16 @@ def scatter_receptor_il2(mylist):
 		conv_ir[i,1]=T.r
 	return(conv_ir)
 ####################### UPDATE FUNCTION ########################################
-def advance(c_Tc,c_Tr,mu_Tc,mu_Tr,lb_tc,lb_Tr,thrdiv_Tr,starv_Tc,thrstarv_Tc,a_Tc,a_Tr,dt,timenow):
+def advance(c_Tc,c_Tr,mu_Tc,mu_Tr,lb_tc,lb_Tr,thrdiv_Tr,starv_Tc,thrstarv_Tc,a_Tc,a_Tr,dt,timenow,receptors_Tc,timelives_Tc,receptors_Tr,timelives_Tr):
 	'''Update local and population variables'''
 	print('t=',timenow)
 	immigration(a_Tc,a_Tr,dt,timenow)
-	death_division_starvation(mu_Tc,mu_Tr,lb_tc,lb_Tr,thrdiv_Tr,starv_Tc,thrstarv_Tc,dt,timenow)
-	R=IL2consumption_IL2production_IL2Rupregulation(c_Tc,c_Tr,p_Tc,u_Tc,u_Tr,dt)
-	return(R)
+	receptors_Tc,timelives_Tc,receptors_Tr,timelives_Tr=death_division_starvation(mu_Tc,mu_Tr,lb_tc,lb_Tr,thrdiv_Tr,starv_Tc,thrstarv_Tc,dt,timenow,receptors_Tc,timelives_Tc,receptors_Tr,timelives_Tr)
+	R=IL2consumption_IL2production_IL2Rupregulation(c_Tc,c_Tr,p_Tc,u_Tc,u_Tr,dt,timenow)
+	return(R,receptors_Tc,timelives_Tc,receptors_Tr,timelives_Tr)
 ################### ANIMATE and PLOT ###########################################
 
-def animateGraph(timenow,Tregnumberlist,Tconvnumberlist):
+def animateGraph(timenow):
 	'''Update animated graph'''
 	convTc_ir=scatter_receptor_il2([T for T in globals.profile_Tc])
 	convTr_ir=scatter_receptor_il2([T for T in globals.profile_Tr])
@@ -83,16 +83,13 @@ def animateGraph(timenow,Tregnumberlist,Tconvnumberlist):
 		ax_xhist.hist(convTr_ir[:,0],bins=50,histtype='step',label='Regulatory T cells',color='crimson')
 		ax_yhist.hist(convTr_ir_init[:,1],bins=10**np.linspace(np.log10(xmin1), np.log10(xmax1),50),alpha=0.1,color='red',orientation='horizontal')
 		ax_yhist.hist(convTr_ir[:,1],bins=10**np.linspace(np.log10(xmin1), np.log10(xmax1),50),histtype='step',label='Regulatory T cells',color='crimson',orientation='horizontal')
-		ax_yhist.text(0,10**(15),r'$t=$'+str(timenow)+'\n'+r'$N_c=$'+str(Tccells)+r' $N_r=$'+str(Trcells), fontsize=25)
+		ax_yhist.text(0,10**(17),r'$t=$'+str(timenow)+'\n'+r'$N_c=$'+str(Tccells)+r' $N_r=$'+str(Trcells), fontsize=25)
 	#mean_all.set_ydata(meanall)
 	else:
-		ax_yhist.text(0,10**(15),r'$t=$'+str(timenow)+'\n'+r'$N_c=$'+str(Tccells), fontsize=25)
+		ax_yhist.text(0,10**(17),r'$t=$'+str(timenow)+'\n'+r'$N_c=$'+str(Tccells), fontsize=25)
 	#txt_graph.set_x(0)
 	#txt_graph.set_y(10**15)
 	
-	Tregnumberlist.append(Trcells)
-	Tconvnumberlist.append(Tccells)
-	return(Tregnumberlist,Tconvnumberlist)
 	
 	
 	
@@ -121,7 +118,10 @@ def animateAndSave(tmax,dt):
 	Tregnumberlist=[len(globals.profile_Tr)]
 	Tconvnumberlist=[len(globals.profile_Tc)]
 	cellnumber=list( map(add, Tregnumberlist, Tconvnumberlist) )
-	
+	receptors_Tc=[]
+	timelives_Tc=[]
+	receptors_Tr=[]
+	timelives_Tr=[]
 	if animate_simulation==True: # Save picture of the inital conditions
 		#images=[]
 		file_name = "animation"+'%s'%timenow+'.png'
@@ -131,18 +131,20 @@ def animateAndSave(tmax,dt):
 	#Simulation
 	while timenow<tmax:
 				#update
-		R=advance(c_Tc,c_Tr,mu_Tc,mu_Tr,lb_Tc,lb_Tr,thrdiv_Tr,starv_Tc,thrstarv_Tc,a_Tc,a_Tr,dt,timenow)
+		R,receptors_Tc,timelives_Tc,receptors_Tr,timelives_Tr=advance(c_Tc,c_Tr,mu_Tc,mu_Tr,lb_Tc,lb_Tr,thrdiv_Tr,starv_Tc,thrstarv_Tc,a_Tc,a_Tr,dt,timenow,receptors_Tc,timelives_Tc,receptors_Tr,timelives_Tr)
 		timenow+=dt
 		timelist.append(timenow)
 		Rlist.append(R)
 		
 		#save figure at time t (timenow)
 		if animate_simulation==True:
-			Tregnumberlist,Tconvnumberlist=animateGraph(timenow,Tregnumberlist,Tconvnumberlist)
-			cellnumber=list( map(add, Tregnumberlist, Tconvnumberlist) )
+			animateGraph(timenow)
 			file_name = "animation"+'%s'%timenow+'.png'
-			#images.append(results_dir+file_name)
 			plt.savefig(results_dir + file_name)
+			
+		Tregnumberlist.append(len(globals.profile_Tr))
+		Tconvnumberlist.append(len(globals.profile_Tc))
+		cellnumber=list( map(add, Tregnumberlist, Tconvnumberlist) )
 		#update time
 		if len(globals.profile_Tc+globals.profile_Tr)==0 and a_Tc==0 and a_Tr==0: #If no cells anymore then stop the simulation
 			break
@@ -151,7 +153,7 @@ def animateAndSave(tmax,dt):
 	file_name='0_NR.png'
 	R0=Rlist[0]
 	Nth,Rth= theoretical_NR(c_Tc,c_Tr,mu_Tc,mu_Tr,lb_Tc,lb_Tr,thrdiv_Tr,starv_Tc,thrstarv_Tc,a_Tc,a_Tr,dt,timelist,Nc,Nr,R0,meanr0_Tc)
-	fig,axs=plt.subplots(2,1,figsize=(15,10))
+	fig,axs=plt.subplots(3,1,figsize=(15,10))
 	params_plt = {'axes.labelsize': 24,
           'axes.titlesize': 30,
           'legend.fontsize': 24,
@@ -175,31 +177,66 @@ def animateAndSave(tmax,dt):
 			lab.set_fontsize(24)
 	# N
 	#axs[0].set(ylabel='Number of cells',xlim=(0, tmax),ylim=(10**(-1),max( max(Tregnumberlist),max(Tconvnumberlist))+10000), yscale='log')
-	axs[0].set(xlim=(0, tmax),ylim=(10**(-1),max(cellnumber)+10000))#, yscale='log')
+	axs[0].set(xlim=(0, tmax),ylim=(10**(-1),max(cellnumber)+10**6))#, yscale='log')
 	axs[0].set_ylabel('Number of cells',fontsize=24)
 	axs[0].set_yscale('log')
 	
 	axs[0].plot(timelist,Tconvnumberlist,color='darkturquoise', lw=1,label='Conventional T cells')
 	if Nth[-1]>0:
 		axs[0].plot(timelist, Nth,linestyle='--',color='lightgray',label='Theory ')
-		axs[0].set_title(r'$N$')
+		#axs[0].set_title(r'$N$')
 	if Tregnumberlist[0]>0:
 		axs[0].plot(timelist,Tregnumberlist,color='crimson', lw=1,label='Regulatory T cells')[0]
 		axs[0].plot(timelist,cellnumber,color='black', lw=1,label='All T cells')
-		axs[0].set_title(r'$N_{T_c}$ and $N_{T_r}$')
 	axs[0].legend(loc='lower right')
 	axs[0].set_xticks([])
 	
 
 	
-	axs[1].set(xlabel=r'$t$',ylabel=r'$R$', xlim=(0, tmax),ylim=(10**(1), max(Rlist)+10000),yscale='log')
+	axs[1].set(ylabel=r'$R$', xlim=(0, tmax),ylim=(10**(1), max(Rlist)+10000),yscale='log')
 	if Rth[-1]>0:
 		axs[1].plot(timelist,Rth,linestyle='--',color='lime',label=r'Theoretical $\bar{R}$') 
 	axs[1].plot(timelist,Rlist,color='black',lw=1,label=r'$R$')
-	axs[1].set_title(r'R')
 	axs[1].legend(loc='best')
 	axs[1].legend(loc='lower right')
-	#axs[1].set_xticks([])
+	axs[1].set_xticks([])
+	
+	axs[2].set(xlim=(0, tmax),ylim=(10**(-1), 10**11), yscale='log')
+	#axs[2].axhline(y=up_Tc*p_Tc/(d_Tc)**2,linestyle='--',color='pink',label=r'$\frac{up}{\mu^2}$') # do I want up/mu^2 or r0+up/mu^2?
+	iTc=0
+	iTr=0
+	for T in globals.profile_Tc:
+		if T.track==True:
+			if iTc==0:
+				axs[2].plot(T.timelist,T.rlist, color='blue',alpha=0.3,label='Tconvs')
+			else:
+				axs[2].plot(T.timelist,T.rlist, color='blue',alpha=0.3)
+			iTc+=1
+	if len(receptors_Tc)>0:
+		for i in range(len(receptors_Tc)):
+			if iTc==0:
+				axs[2].plot(timelives_Tc[i],receptors_Tc[i],color='blue',alpha=0.3,label='Tconvs')
+			else:
+				axs[2].plot(timelives_Tc[i],receptors_Tc[i],color='blue',alpha=0.3)
+			iTc+=1
+		
+	for T in globals.profile_Tr:
+		if T.track==True:
+			if iTr==0:
+				axs[2].plot(T.timelist,T.rlist, color='red',alpha=0.3,label='Tregs')
+			else:
+				axs[2].plot(T.timelist,T.rlist, color='red',alpha=0.3)
+			iTr+=1
+	if len(receptors_Tr)>0:
+		for i in range(len(receptors_Tr)):
+			if iTr==0:
+				axs[2].plot(timelives_Tr[i],receptors_Tr[i],color='red',alpha=0.3,label='Tregs')
+			else:
+				axs[2].plot(timelives_Tr[i],receptors_Tr[i],color='red',alpha=0.3)
+			iTr+=1
+	axs[2].legend(loc='upper right')
+	axs[2].set_ylabel(r'$r_T$',fontsize=24)
+	axs[2].set_xlabel(r'$t$',fontsize=24)
 	
 	
 	print('saving figure...')
@@ -273,11 +310,11 @@ if Nr>0 or a_Tr>0:
 	ax_yhist.hist(convTr_ir[:,1],bins=10**np.linspace(np.log10(xmin1), np.log10(xmax1),50),orientation='horizontal',histtype='step',label='Regulatory T cells',color='darkturquoise')
 	ax_yhist.hist(convTr_ir_init[:,1],bins=10**np.linspace(np.log10(xmin1), np.log10(xmax1),50),alpha=0.1,color='red',orientation='horizontal')
 	scattTr_convall=ax_main.scatter(convTr_ir[:,0],convTr_ir[:,1], color='crimson',alpha=0.3, marker='o',s=5,label='Regulatory T cells')
-	ax_yhist.text(0,10**(15),r'$t=0$'+'\n'+r'$N_c=$'+str(Nc)+r' $N_r=$'+str(Nr), fontsize=25)
+	ax_yhist.text(0,10**(17),r'$t=0$'+'\n'+r'$N_c=$'+str(Nc)+r' $N_r=$'+str(Nr), fontsize=25)
 else:
-	ax_yhist.text(0,10**(15),r'$t=0$'+'\n'+r'$N_c=$'+str(Nc), fontsize=25)
+	ax_yhist.text(0,10**(17),r'$t=0$'+'\n'+r'$N_c=$'+str(Nc), fontsize=25)
 
-ax_main.legend(loc='upper right')
+ax_main.legend(bbox_to_anchor=[1.65,1.3],markerscale=6)
 
 
 results_dir=animateAndSave(tmax,dt)

@@ -4,27 +4,42 @@ from cells import *
 import globals
 from params import *
 
-def dr_Tc(T,starv_Tc,mu_Tc):
+def dr_Tc(T,starv_Tc,mu_Tc,thrstarv_Tc):
+	''' Return death rate of Tconv T
+	'''
 	rr=mu_Tc
 	if T.i<thrstarv_Tc:
 		rr+=starv_Tc
 	return(rr)
-def divr_Tr(T,lb_Tr):
+def divr_Tr(T,lb_Tr,thrdiv_Tr):
+	''' Return the division rate of Treg T
+	'''
 	rr=0
-	if T.i>thrdiv_tr:
+	if T.i>thrdiv_Tr:
 		rr=lb_Tr
-	retur(rr)
-def death_division_starvation(mu_Tc,mu_Tr,lb_tc,lb_Tr,thrdiv_Tr,starv_Tc,thrstarv_Tc,dt,timenow):
+	return(rr)
+	
+def death_division_starvation(mu_Tc,mu_Tr,lb_tc,lb_Tr,thrdiv_Tr,starv_Tc,thrstarv_Tc,dt,timenow,receptors_Tc,timelives_Tc,receptors_Tr,timelives_Tr):
+	''' Choose cells that will divide or die during dt and update the profiles
+	'''
 	if mu_Tc+starv_Tc+lb_Tc==0:
 		print('No death or division for Tconvs')
 	else:
-		#Discrimitate cells that will die or divide
+		# Determine cells that will do something
 		tc=len(globals.profile_Tc)
 		ran_Tc = np.random.random(tc)
-		action_Tc=[T for i,T in enumerate(globals.profile_Tc) if ran_Tc[i]<(dr_Tc(T,starv_Tc,mu_Tc)+lb_Tc)*dt]
+		action_Tc=[T for i,T in enumerate(globals.profile_Tc) if ran_Tc[i]<(dr_Tc(T,starv_Tc,mu_Tc,thrstarv_Tc)+lb_Tc)*dt]
+		# Choose between death or division
 		ran2_Tc = np.random.random(len(action_Tc))
-		mothers_Tc=[T for i,T in enumerate(action_Tc) if np.searchsorted(np.cumsum([lb_Tc/(dr_Tc(T,starv_Tc,mu_Tc)+lb_Tc),dr_Tc(T,starv_Tc,mu_Tc)/(dr_Tc(T,starv_Tc,mu_Tc)+lb_Tc)]),ran2_Tc[i])==0]
-		dyingcells_Tc=[T for i,T in enumerate(action_Tc) if np.searchsorted(np.cumsum([lb_Tc/(dr_Tc(T,starv_Tc,mu_Tc)+lb_Tc),dr_Tc(T,starv_Tc,mu_Tc)/(dr_Tc(T,starv_Tc,mu_Tc)+lb_Tc)]),ran2_Tc[i])==1]
+		mothers_Tc=[T for i,T in enumerate(action_Tc) if np.searchsorted(np.cumsum([lb_Tc/(dr_Tc(T,starv_Tc,mu_Tc,thrstarv_Tc)+lb_Tc),dr_Tc(T,starv_Tc,mu_Tc,thrstarv_Tc)/(dr_Tc(T,starv_Tc,mu_Tc,thrstarv_Tc)+lb_Tc)]),ran2_Tc[i])==0]
+		dyingcells_Tc=[T for i,T in enumerate(action_Tc) if np.searchsorted(np.cumsum([lb_Tc/(dr_Tc(T,starv_Tc,mu_Tc,thrstarv_Tc)+lb_Tc),dr_Tc(T,starv_Tc,mu_Tc,thrstarv_Tc)/(dr_Tc(T,starv_Tc,mu_Tc,thrstarv_Tc)+lb_Tc)]),ran2_Tc[i])==1]
+		# Update traked lists
+		for T in dyingcells_Tc:
+			if T.track==True:
+				receptors_Tc.append(T.rlist)
+				timelives_Tc.append(T.timelist)
+				
+		# Update T conv profile
 		globals.profile_Tc=[T for T in globals.profile_Tc if  T not in dyingcells_Tc]
 		daughters_Tc=[Tconv(timenow) for i_ in range(len(mothers_Tc))]
 		for i in range(len(mothers_Tc)): #daughter cells receive half the receptors from their mother
@@ -32,29 +47,41 @@ def death_division_starvation(mu_Tc,mu_Tr,lb_tc,lb_Tr,thrdiv_Tr,starv_Tc,thrstar
 			Td=daughters_Tc[i]	
 			Td.r=T.r/2
 			T.r=T.r/2
+			T.reset_tracking(timenow)
+			Td.reset_tracking(timenow)
+       			
 		globals.profile_Tc.extend(daughters_Tc)
 	if mu_Tr+lb_Tr==0:
 		print('No death or division for Tregs')
 	else:
-		#Discrimitate cells that will die or divide
+		# Determine cells that will do something
 		tr=len(globals.profile_Tr)
 		ran_Tr = np.random.random(tr)
-		action_Tr=[T for i,T in enumerate(globals.profile_Tr) if ran_Tr[i]<(divr_Tr(T,lb_Tr)+mu_Tr)*dt]
+		action_Tr=[T for i,T in enumerate(globals.profile_Tr) if ran_Tr[i]<(divr_Tr(T,lb_Tr,thrdiv_Tr)+mu_Tr)*dt]
+		# Choose between division or death
 		ran2_Tr = np.random.random(len(action_Tr))
-		mothers_Tr=[T for i,T in enumerate(action_Tr) if np.searchsorted(np.cumsum([divr_Tr(T,lb_Tr)/(divr_Tr(T,lb_Tr)+mu_Tr),mu_Tr/(mu_Tr+divr_Tr(T,lb_Tr))]),ran2_Tr[i])==0]
-		dyingcells_Tr=[T for i,T in enumerate(action_Tr) if np.searchsorted(np.cumsum([divr_Tr(T,lb_Tr)/(divr_Tr(T,lb_Tr)+mu_Tr),mu_Tr/(mu_Tr+divr_Tr(T,lb_Tr))]),ran2_Tr[i])==1]
-		globals.profile_Tr=[T for T in globals.profile_Tr if  T not in dyingcells_Tr]
+		mothers_Tr=[T for i,T in enumerate(action_Tr) if np.searchsorted(np.cumsum([divr_Tr(T,lb_Tr,thrdiv_Tr)/(divr_Tr(T,lb_Tr,thrdiv_Tr)+mu_Tr),mu_Tr/(mu_Tr+divr_Tr(T,lb_Tr,thrdiv_Tr))]),ran2_Tr[i])==0]
+		dyingcells_Tr=[T for i,T in enumerate(action_Tr) if np.searchsorted(np.cumsum([divr_Tr(T,lb_Tr,thrdiv_Tr)/(divr_Tr(T,lb_Tr,thrdiv_Tr)+mu_Tr),mu_Tr/(mu_Tr+divr_Tr(T,lb_Tr,thrdiv_Tr))]),ran2_Tr[i])==1]
+		# Update tracked lists
+		for T in dyingcells_Tr:
+			if T.track==True:
+				receptors_Tr.append(T.rlist)
+				timelives_Tr.append(T.timelist)
+		# Update Tregs profile
+		globals.profile_Tr=[T for T in globals.profile_Tr if T not in dyingcells_Tr]
 		daughters_Tr=[Treg(timenow) for i_ in range(len(mothers_Tr))]
 		for i in range(len(mothers_Tr)): #daughter cells receive half the receptors from their mother
 			T=mothers_Tr[i]
 			Td=daughters_Tr[i]	
 			Td.r=T.r/2
 			T.r=T.r/2
+			T.reset_tracking(timenow)
+			Td.reset_tracking(timenow)
 		globals.profile_Tr.extend(daughters_Tr)
-	
+		return(receptors_Tc,timelives_Tc,receptors_Tr,timelives_Tr)
 ############################ BIRTH #############################################
 def immigration(a_Tc,a_Tr,dt,timenow):
-	'''A certain number of cells are created during dt at rate im_Tc for conventional T cells, im_Tr for Tregs'''
+	'''A certain number of cells are created during dt at rate a_Tc for Tconvs, a_Tr for Tregs'''
 	new_Tc = np.random.poisson(lam = a_Tc*dt)
 	newTc=[Tconv(timenow) for _ in range(new_Tc)]
 	globals.profile_Tc.extend(newTc)
@@ -64,9 +91,9 @@ def immigration(a_Tc,a_Tr,dt,timenow):
 	
 
 ############### IL-2 CONSUMPTION  AND IL-2R upregulation ####################### 
-def IL2consumption_IL2production_IL2Rupregulation(c_Tc,c_Tr,p_Tc,u_Tc,u_Tr,dt): #here, all T cells are consuming il-2 (no probability) 
-	'''At each step,  activated T cells produce some IL-2. All this IL-2 will be consumed by Tregs and activated Tconv proportionally to their number of IL-2R
-	During dt, Tregs and activated T conv upregulates their number of IL-2R depending on the amount of IL-2 they consumed since birth (Tregs and Tconvs) or activation (Tconvs only)'''
+def IL2consumption_IL2production_IL2Rupregulation(c_Tc,c_Tr,p_Tc,u_Tc,u_Tr,dt,timenow): #here, all T cells are consuming il-2 (no probability) 
+	'''At each step, Tconvs produce some IL-2. All this IL-2 will be consumed by Tregs and Tconvs proportionally to their number of IL-2R
+	During dt, Tregs and Tconvs upregulate their number of IL-2R depending on the amount of IL-2 they consumed since birth (Tregs and Tconvs) or activation (Tconvs only)'''
 	production=p_Tc*len(globals.profile_Tc)*dt 
 	sumRtc=np.sum(np.array([T.r for T in globals.profile_Tc]))
 	sumRtr=np.sum(np.array([T.r for T in globals.profile_Tr]))
@@ -79,12 +106,15 @@ def IL2consumption_IL2production_IL2Rupregulation(c_Tc,c_Tr,p_Tc,u_Tc,u_Tr,dt): 
 
 	[T.il2R_upregulation(u_Tc*dt*T.i) for T in globals.profile_Tc] #only activated Tconv upregulate IL-2R expression
 	[T.il2R_upregulation(u_Tr*dt*T.i) for T in globals.profile_Tr] # all Tregs upregulate I-2R expression
+	
+	[T.update_list(timenow) for T in globals.profile_Tc]
+	[T.update_list(timenow) for T in globals.profile_Tr]
 	return(norm)
 
 
 ################### Theory #################################################
 def theoretical_NR(c_Tc,c_Tr,mu_Tc,mu_Tr,lb_tc,lb_Tr,thrdiv_Tr,starv_Tc,thrstarv_Tc,a_Tc,a_Tr,dt,timelist,Nc,Nr,R0,meanr0_Tc):
-	'''Return the theoretical global functions R and N evaluated at each time of the simulation as an  numpy array '''
+	'''Return the theoretical global functions R and N evaluated at each time of the simulation as an Numpy array '''
 	timelist=np.array(timelist)
 	#Conventional T cells only
 	if Nr==0 and a_Tr==0:
