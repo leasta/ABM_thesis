@@ -10,7 +10,7 @@ class Tconv():
       	
     
     def consume(self,ci):
-    	self.il2+=ci
+    	self.i+=ci
     	
     def il2R_upregulation(self,nbR):
     	self.r+=nbR

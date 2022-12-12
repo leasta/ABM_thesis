@@ -48,12 +48,13 @@ def animateGraph(timenow,Tregnumberlist,Tconvnumberlist):
 	convTr_ir=scatter_receptor_il2([T for T in globals.profile_Tr])
 	Trcells=len(globals.profile_Tr)
 	Tccells=len(globals.profile_Tc)
-	
 	alivecells=globals.profile_Tc+globals.profile_Tr
-	indexold=np.argmin(np.array([T.db for T in alivecells ]))
-	#indexmax=np.argmax(np.array([T.r for T in globals.profile_Tc+globals.profile_Tr]))
-	oldestcell=alivecells[indexold]
-	oldage=oldestcell.db
+	if len(alivecells)>0:
+		indexold=np.argmin(np.array([T.db for T in alivecells]))
+		oldestcell=alivecells[indexold]
+		oldage=oldestcell.db
+	else:
+		oldage=0
 	
 	ax_xhist.cla()
 	ax_yhist.cla()
@@ -143,6 +144,8 @@ def animateAndSave(tmax,dt):
 			#images.append(results_dir+file_name)
 			plt.savefig(results_dir + file_name)
 		#update time
+		if len(globals.profile_Tc+globals.profile_Tr)==0 and a_Tc==0 and a_Tr==0: #If no cells anymore then stop the simulation
+			break
 		
 	#plot N, R and trajectories
 	file_name='0_NR.png'
@@ -208,10 +211,10 @@ def animateAndSave(tmax,dt):
 ################# RUN ##########################
 
 if Nc==0:
-	raise ValueError('No IL-2 producing cell Please choose Nc>0')
+	raise ValueError('No IL-2 producing cell. Please choose Nc>0')
 #initialise variables	
 globals.initialize(Nr,Nc)
-#print('test',len(globals.profile_Tc),len(globals.profile_Tr))
+print('Test initialization',len(globals.profile_Tc)==Nc,len(globals.profile_Tr)==Nr)
 
 
 
