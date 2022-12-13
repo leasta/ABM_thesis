@@ -70,7 +70,7 @@ def animateGraph(timenow):
 		
 	#ax_main.axhline(y=meanr0,label=r'$\bar{r_0}$',color='gray',linestyle='--')
 	#ax_yhist.axhline(y=meanr0,label=r'$\bar{r_0}$',color='gray',linestyle='--')
-	ax_xhist.hist(convTc_ir[:,0],bins=50,histtype='step',label='activated T cells',color='darkturquoise')
+	ax_xhist.hist(convTc_ir[:,0],bins=50,histtype='step',label='Conventional T cells',color='darkturquoise')
 	ax_yhist.hist(convTc_ir_init[:,1],bins=10**np.linspace(np.log10(xmin1), np.log10(xmax1),50),alpha=0.1,color='blue',orientation='horizontal')
 	ax_yhist.hist(convTc_ir[:,1],bins=10**np.linspace(np.log10(xmin1), np.log10(xmax1),50),histtype='step',label='Conventional T cells',color='darkturquoise',orientation='horizontal')
 	#scatt_max.set_offsets([maxcell.db,maxcell.r])
