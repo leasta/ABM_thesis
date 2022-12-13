@@ -130,9 +130,9 @@ def animateAndSave(tmax,dt):
 	
 	#Simulation
 	while timenow<tmax:
-				#update
-		R,receptors_Tc,timelives_Tc,receptors_Tr,timelives_Tr=advance(c_Tc,c_Tr,mu_Tc,mu_Tr,lb_Tc,lb_Tr,thrdiv_Tr,starv_Tc,thrstarv_Tc,a_Tc,a_Tr,dt,timenow,receptors_Tc,timelives_Tc,receptors_Tr,timelives_Tr)
+		#update
 		timenow+=dt
+		R,receptors_Tc,timelives_Tc,receptors_Tr,timelives_Tr=advance(c_Tc,c_Tr,mu_Tc,mu_Tr,lb_Tc,lb_Tr,thrdiv_Tr,starv_Tc,thrstarv_Tc,a_Tc,a_Tr,dt,timenow,receptors_Tc,timelives_Tc,receptors_Tr,timelives_Tr)
 		timelist.append(timenow)
 		Rlist.append(R)
 		
