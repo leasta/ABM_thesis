@@ -36,8 +36,9 @@ def scatter_receptor_il2(mylist):
 def advance(c_Tc,c_Tr,mu_Tc,mu_Tr,lb_tc,lb_Tr,thrdiv_Tr,starv_Tc,thrstarv_Tc,a_Tc,a_Tr,dt,timenow,receptors_Tc,timelives_Tc,receptors_Tr,timelives_Tr):
 	'''Update local and population variables'''
 	print('t=',timenow)
-	immigration(a_Tc,a_Tr,dt,timenow)
+	
 	receptors_Tc,timelives_Tc,receptors_Tr,timelives_Tr=death_division_starvation(mu_Tc,mu_Tr,lb_tc,lb_Tr,thrdiv_Tr,starv_Tc,thrstarv_Tc,dt,timenow,receptors_Tc,timelives_Tc,receptors_Tr,timelives_Tr)
+	immigration(a_Tc,a_Tr,dt,timenow)
 	R=IL2consumption_IL2production_IL2Rupregulation(c_Tc,c_Tr,p_Tc,u_Tc,u_Tr,dt,timenow)
 	return(R,receptors_Tc,timelives_Tc,receptors_Tr,timelives_Tr)
 ################### ANIMATE and PLOT ###########################################
@@ -177,9 +178,9 @@ def animateAndSave(tmax,dt):
 			lab.set_fontsize(24)
 	# N
 	#axs[0].set(ylabel='Number of cells',xlim=(0, tmax),ylim=(10**(-1),max( max(Tregnumberlist),max(Tconvnumberlist))+10000), yscale='log')
-	axs[0].set(xlim=(0, tmax),ylim=(10**(-1),max(cellnumber)+10**6))#, yscale='log')
+	axs[0].set(xlim=(0, tmax),ylim=(10**(-1),max(cellnumber)+10**3))#, yscale='log')
 	axs[0].set_ylabel('Number of cells',fontsize=24)
-	axs[0].set_yscale('log')
+	#axs[0].set_yscale('log')
 	
 	axs[0].plot(timelist,Tconvnumberlist,color='darkturquoise', lw=1,label='Conventional T cells')
 	if Nth[-1]>0:

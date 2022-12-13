@@ -6,14 +6,14 @@ mu_Tc = 0.01  		# death rate
 c_Tc = 1 	# comsumption rate of IL-2
 p_Tc=10				# production rate of IL-2
 lb_Tc =0 		# division rate
-thrstarv_Tc = 300	# threshold under which a cell can die of IL-2 starvation
+thrstarv_Tc =0	# threshold under which a cell can die of IL-2 starvation
 starv_Tc=0		# death rate by starvation
 u_Tc=10			# upregulation rate
 m0_Tc=1				# parameter of the initial receptor distribution: mean
 sig0_Tc=1			# parameter of the initial receptor distribution: std
 tracked_Tc=0.003     # percentage of T convs tracked
 ############### Tregs ################
-a_Tr = 10			# immigration/activation rate
+a_Tr = 0			# immigration/activation rate
 mu_Tr = 0.01  		# death rate
 c_Tr = 1 	# comsumption rate of IL-2
 lb_Tr = 0.007 		# division rate
@@ -23,15 +23,15 @@ m0_Tr=3				# parameter of the initial receptor distribution: mean
 sig0_Tr=2			# parameter of the initial receptor distribution: std
 tracked_Tr=0.003     # percentage of Tregs tracked
 ############### Time ###############
-tmax=10000
+tmax=3000
 dt=10
 
 ###################### INITIALISATION ##########################################
 
-#Nc = int(a_Tc/(mu_Tc-lb_Tc))#initial number of Tconv
-Nc=3000
+Nc = int(a_Tc/(mu_Tc-lb_Tc))#initial number of Tconv
+#Nc=10000
 
-Nr=10000 #initial number of Tregs
+Nr=0 #initial number of Tregs
 
 
 meanr0_Tc=np.exp(m0_Tc+sig0_Tc**2/2)
