@@ -28,11 +28,10 @@ dt=10
 
 ###################### INITIALISATION ##########################################
 
-#nc = int(im_Tc/(d_Tc-div_Tc))#initial number of Tconv
+#Nc = int(a_Tc/(mu_Tc-lb_Tc))#initial number of Tconv
 Nc=3000
 
-Nr=10000
-#nr = 5000 #initial number of Tregs
+Nr=10000 #initial number of Tregs
 
 
 meanr0_Tc=np.exp(m0_Tc+sig0_Tc**2/2)
