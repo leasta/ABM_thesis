@@ -19,9 +19,6 @@ import pandas as pd
 import matplotlib.gridspec as gridspec
 
 
-#animate_simulation=True #Save a scatterplot for each time step. 
-animate_simulation=False # Faster simulation
-
 ####################### SCATTER DATA ###########################################
 def scatter_receptor_il2(mylist):
 	'''Prepare the data for the scatterplot: receptor as a function of date of birth'''
@@ -123,7 +120,7 @@ def animateAndSave(tmax,dt):
 	timelives_Tc=[]
 	receptors_Tr=[]
 	timelives_Tr=[]
-	if animate_simulation==True: # Save picture of the inital conditions
+	if animation==True: # Save picture of the inital conditions
 		#images=[]
 		file_name = "animation"+'%s'%timenow+'.png'
 		#images.append(results_dir+file_name)	
@@ -138,7 +135,7 @@ def animateAndSave(tmax,dt):
 		Rlist.append(R)
 		
 		#save figure at time t (timenow)
-		if animate_simulation==True:
+		if animation==True:
 			animateGraph(timenow)
 			file_name = "animation"+'%s'%timenow+'.png'
 			plt.savefig(results_dir + file_name)

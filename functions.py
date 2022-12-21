@@ -33,7 +33,7 @@ def death_division_starvation(mu_Tc,mu_Tr,lb_tc,lb_Tr,thrdiv_Tr,starv_Tc,thrstar
 		ran2_Tc = np.random.random(len(action_Tc))
 		mothers_Tc=[T for i,T in enumerate(action_Tc) if np.searchsorted(np.cumsum([lb_Tc/(dr_Tc(T,starv_Tc,mu_Tc,thrstarv_Tc)+lb_Tc),dr_Tc(T,starv_Tc,mu_Tc,thrstarv_Tc)/(dr_Tc(T,starv_Tc,mu_Tc,thrstarv_Tc)+lb_Tc)]),ran2_Tc[i])==0]
 		dyingcells_Tc=[T for i,T in enumerate(action_Tc) if np.searchsorted(np.cumsum([lb_Tc/(dr_Tc(T,starv_Tc,mu_Tc,thrstarv_Tc)+lb_Tc),dr_Tc(T,starv_Tc,mu_Tc,thrstarv_Tc)/(dr_Tc(T,starv_Tc,mu_Tc,thrstarv_Tc)+lb_Tc)]),ran2_Tc[i])==1]
-		# Update traked lists
+		# Update tracked lists
 		for T in dyingcells_Tc:
 			if T.track==True:
 				receptors_Tc.append(T.rlist)
@@ -48,7 +48,6 @@ def death_division_starvation(mu_Tc,mu_Tr,lb_tc,lb_Tr,thrdiv_Tr,starv_Tc,thrstar
 			Td.r=T.r/2
 			T.r=T.r/2
 			T.reset_tracking(timenow)
-			Td.reset_tracking(timenow)
        			
 		globals.profile_Tc.extend(daughters_Tc)
 	if mu_Tr+lb_Tr==0:
@@ -76,7 +75,6 @@ def death_division_starvation(mu_Tc,mu_Tr,lb_tc,lb_Tr,thrdiv_Tr,starv_Tc,thrstar
 			Td.r=T.r/2
 			T.r=T.r/2
 			T.reset_tracking(timenow)
-			Td.reset_tracking(timenow)
 		globals.profile_Tr.extend(daughters_Tr)
 		return(receptors_Tc,timelives_Tc,receptors_Tr,timelives_Tr)
 ############################ BIRTH #############################################
@@ -97,10 +95,10 @@ def IL2consumption_IL2production_IL2Rupregulation(c_Tc,c_Tr,p_Tc,u_Tc,u_Tr,dt,ti
 	production=p_Tc*len(globals.profile_Tc)*dt 
 	sumRtc=np.sum(np.array([T.r for T in globals.profile_Tc]))
 	sumRtr=np.sum(np.array([T.r for T in globals.profile_Tr]))
-	norm=c_Tc*sumRtc+c_Tr*sumRtr
-	if norm>0:
-		[T.consume(c_Tr*T.r*production/norm) for T in globals.profile_Tr ] # all Tregs consume IL-2
-		[T.consume(c_Tc*T.r*production/norm) for T in globals.profile_Tc] #only activated t conv consume IL-2
+	R=c_Tc*sumRtc+c_Tr*sumRtr
+	if R>0:
+		[T.consume(c_Tr*T.r*production/R) for T in globals.profile_Tr ] # all Tregs consume IL-2
+		[T.consume(c_Tc*T.r*production/R) for T in globals.profile_Tc] #only activated t conv consume IL-2
 	else:
 		print('normalisation constant equal to 0: no cells so no consumption')
 
@@ -109,7 +107,7 @@ def IL2consumption_IL2production_IL2Rupregulation(c_Tc,c_Tr,p_Tc,u_Tc,u_Tr,dt,ti
 	
 	[T.update_list(timenow) for T in globals.profile_Tc]
 	[T.update_list(timenow) for T in globals.profile_Tr]
-	return(norm)
+	return(R)
 
 
 ################### Theory #################################################
