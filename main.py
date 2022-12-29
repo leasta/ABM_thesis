@@ -26,7 +26,7 @@ def scatter_receptor_il2(mylist):
 	conv_ir=np.zeros((ncc,2))  
 	for i in range(ncc):
 		T=mylist[i]
-		conv_ir[i,0]=T.db
+		conv_ir[i,0]=T.timelist[0]
 		conv_ir[i,1]=T.r
 	return(conv_ir)
 ####################### UPDATE FUNCTION ########################################
@@ -48,9 +48,9 @@ def animateGraph(timenow):
 	Tccells=len(globals.profile_Tc)
 	alivecells=globals.profile_Tc+globals.profile_Tr
 	if len(alivecells)>0:
-		indexold=np.argmin(np.array([T.db for T in alivecells]))
+		indexold=np.argmin(np.array([T.timelist[0] for T in alivecells]))
 		oldestcell=alivecells[indexold]
-		oldage=oldestcell.db
+		oldage=oldestcell.timelist[0]
 	else:
 		oldage=0
 	
@@ -61,32 +61,24 @@ def animateGraph(timenow):
 	ax_yhist.set_xlabel('Number of cells')
 	ax_xhist.set_ylabel('Number of cells')
 	axrt=ax_main.set(xlabel='Date of birth $t_T^{in}$',ylabel='IL-2R expression level  $r_T$',xlim=(-10+oldage, timenow+100),ylim=(xmin1, xmax1),yscale='log')
-	#scatt_conv.set_offsets(conv_ir_new)
-	#scatt_conv2.set_offsets(conv_ir_old)
 	scattTc_convall.set_offsets(convTc_ir)
 	
 		
-	#ax_main.axhline(y=meanr0,label=r'$\bar{r_0}$',color='gray',linestyle='--')
-	#ax_yhist.axhline(y=meanr0,label=r'$\bar{r_0}$',color='gray',linestyle='--')
+
 	ax_xhist.hist(convTc_ir[:,0],bins=50,histtype='step',label='Conventional T cells',color='darkturquoise')
 	ax_yhist.hist(convTc_ir_init[:,1],bins=10**np.linspace(np.log10(xmin1), np.log10(xmax1),50),alpha=0.1,color='blue',orientation='horizontal')
 	ax_yhist.hist(convTc_ir[:,1],bins=10**np.linspace(np.log10(xmin1), np.log10(xmax1),50),histtype='step',label='Conventional T cells',color='darkturquoise',orientation='horizontal')
-	#scatt_max.set_offsets([maxcell.db,maxcell.r])
-	#scatt_old.set_offsets([oldestcell.db,oldestcell.r])
-	#print(len(newcells),meannew)
-	#mean_old.set_ydata(meanold)
-	#mean_new.set_ydata(meannew)
+
 	if Nr>0 or a_Tr>0:
 		scattTr_convall.set_offsets(convTr_ir)
 		ax_xhist.hist(convTr_ir[:,0],bins=50,histtype='step',label='Regulatory T cells',color='crimson')
 		ax_yhist.hist(convTr_ir_init[:,1],bins=10**np.linspace(np.log10(xmin1), np.log10(xmax1),50),alpha=0.1,color='red',orientation='horizontal')
 		ax_yhist.hist(convTr_ir[:,1],bins=10**np.linspace(np.log10(xmin1), np.log10(xmax1),50),histtype='step',label='Regulatory T cells',color='crimson',orientation='horizontal')
 		ax_yhist.text(0,10**(17),r'$t=$'+str(timenow)+'\n'+r'$N_c=$'+str(Tccells)+r' $N_r=$'+str(Trcells), fontsize=25)
-	#mean_all.set_ydata(meanall)
+
 	else:
 		ax_yhist.text(0,10**(17),r'$t=$'+str(timenow)+'\n'+r'$N_c=$'+str(Tccells), fontsize=25)
-	#txt_graph.set_x(0)
-	#txt_graph.set_y(10**15)
+
 	
 	
 	
@@ -245,8 +237,7 @@ def animateAndSave(tmax,dt):
 	
 ################# RUN ##########################
 
-if Nc==0:
-	raise ValueError('No IL-2 producing cell. Please choose Nc>0')
+
 #initialise variables	
 globals.initialize(Nr,Nc)
 print('Test initialization',len(globals.profile_Tc)==Nc,len(globals.profile_Tr)==Nr)

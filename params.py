@@ -3,7 +3,7 @@ import numpy as np
 
 ############### Tconvs ###############
 
-a_Tc = 30			# immigration/activation rate
+a_Tc = 30 			# immigration/activation rate
 mu_Tc = 0.01  		# death rate
 c_Tc = 1 	# comsumption rate of IL-2
 p_Tc=10				# production rate of IL-2
@@ -30,8 +30,8 @@ tmax=3000
 dt=1
 ############### ANIMATION ##########
 
-animation=True #Save a scatterplot for each time step. 
-#animation=False # Faster simulation
+#animation=True #Save a scatterplot for each time step. 
+animation=False # Faster simulation
 
 ###################### INITIALISATION ##########################################
 

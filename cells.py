@@ -6,7 +6,6 @@ class Tconv():
     def __init__(self,t):
         self.r = np.random.lognormal(m0_Tc,sig0_Tc) # IL2R level
         self.i=0 #quantity of IL-2 consumed since its birth
-        self.db=t #time at which the cell enters the pool
         self.rlist=[self.r]
         self.timelist=[t]
        	
@@ -29,7 +28,6 @@ class Tconv():
     		self.timelist.append(t)
     		
     def reset_tracking(self,t):
-    	self.db=t
     	self.rlist=[self.r]
     	self.timelist=[t]
     	ran=np.random.random()
@@ -43,7 +41,6 @@ class Treg():
     def __init__(self,t):
         self.r = np.random.lognormal(m0_Tr,sig0_Tr) # IL2R level
         self.i=0 #quantity of IL-2 consumed since its birth
-        self.db=t #date at which the cell enters the pool
         self.rlist=[self.r]
         self.timelist=[t]
        	
@@ -67,7 +64,6 @@ class Treg():
     		self.timelist.append(t)
     
     def reset_tracking(self,t):
-    	self.db=t
     	self.rlist=[self.r]
     	self.timelist=[t]
     	ran=np.random.random()
