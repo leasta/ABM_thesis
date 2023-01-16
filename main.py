@@ -274,7 +274,7 @@ ax_yhist = plt.subplot(gs[1:3, 2],sharey=ax_main)
 xmin1=10**(-2)
 xmax1=10**(11)
 ymax=2000
-axrt=ax_main.set(xlabel="Date of birth $t_T^{in}$", ylabel="IL-2R expression level $r_T$",xlim=(-10, 100),ylim=(xmin1,xmax1 ),yscale='log')
+axrt=ax_main.set(xlabel="$t_T^{in}$", ylabel="IL-2R expression level $r_T$",xlim=(-10, 100),ylim=(xmin1,xmax1 ),yscale='log')
 scattTc_convall=ax_main.scatter(convTc_ir[:,0],convTc_ir[:,1], color='darkturquoise',alpha=0.3, marker='o',s=5,label='Conventional T cells')
 
 #ax_xhist.hist(conv_ir_init[:,0],bins=100,alpha=0.3,color='gray')
