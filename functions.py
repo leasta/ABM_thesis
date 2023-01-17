@@ -78,7 +78,7 @@ def death_division_starvation(mu_Tc,mu_Tr,lb_tc,lb_Tr,thrdiv_Tr,starv_Tc,thrstar
 		globals.profile_Tr.extend(daughters_Tr)
 		return(receptors_Tc,timelives_Tc,receptors_Tr,timelives_Tr)
 ############################ BIRTH #############################################
-def immigration(a_Tc,a_Tr,dt,timenow):
+def activation(a_Tc,a_Tr,dt,timenow):
 	'''A certain number of cells are created during dt at rate a_Tc for Tconvs, a_Tr for Tregs'''
 	new_Tc = np.random.poisson(lam = a_Tc*dt)
 	newTc=[Tconv(timenow) for _ in range(new_Tc)]
@@ -126,15 +126,15 @@ def theoretical_NR(c_Tc,c_Tr,mu_Tc,mu_Tr,lb_tc,lb_Tr,thrdiv_Tr,starv_Tc,thrstarv
 			print('Hybrid model with death only')
 			N=Nc*np.exp(-mu_Tc*timelist)
 			R=(u_Tc*c_Tc*p_Tc*Nc*timelist**2/2+R0)*np.exp(-mu_Tc*timelist)
-		#death and immigration
+		#death and activation
 		elif a_Tc>0 and mu_Tc>0 and lb_Tc==0 and starv_Tc==0:
-			print('Hybrid model with death and immigration')
+			print('Hybrid model with death and activation')
 			N=(Nc-a_Tc/mu_Tc)*np.exp(-mu_Tc*timelist)+a_Tc/mu_Tc
 			Rinf=Rinf=(a_Tc*c_Tc/mu_Tc)*(p_Tc*u_Tc/(mu_Tc**2)+meanr0_Tc)
 			R=(c_Tc*u_Tc*p_Tc*(Nc-a_Tc/mu_Tc)/2*(timelist)**2-c_Tc*u_Tc*p_Tc*a_Tc/(mu_Tc**2)*np.array(timelist)-Rinf+R0)*np.exp(-mu_Tc*timelist)+Rinf
-		#death, immigration, division
+		#death, activation, division
 		elif a_Tc>0 and mu_Tc>0 and lb_Tc>0 and starv_Tc==0:
-			print('Hybrid model with death, immigration and division')
+			print('Hybrid model with death, activation and division')
 			Ninf=a_Tc/(mu_Tc-lb_Tc)
 			N=(Nc-Ninf)*np.exp((lb_Tc-mu_Tc)*timelist)+Ninf
 			Rinf=(a_Tc*c_Tc/mu_Tc)*(p_Tc*u_Tc/(mu_Tc**2-lb_Tc**2)+meanr0_Tc)

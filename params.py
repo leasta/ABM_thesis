@@ -3,7 +3,7 @@ import numpy as np
 
 ############### Tconvs ###############
 
-a_Tc = 30 			# immigration/activation rate
+a_Tc = 30 			# activation rate
 mu_Tc = 0.01  		# death rate
 c_Tc = 1 	# comsumption rate of IL-2
 p_Tc=10				# production rate of IL-2
@@ -16,7 +16,7 @@ sig0_Tc=1			# parameter of the initial receptor distribution: std
 tracked_Tc=0.003     # percentage of T convs tracked
 
 ############### Tregs ################
-a_Tr = 0			# immigration/activation rate
+a_Tr = 0			# activation rate
 mu_Tr = 0.01  		# death rate
 c_Tr = 1 	# comsumption rate of IL-2
 lb_Tr = 0.007 		# division rate (should be smaller than mu_Tr)

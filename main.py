@@ -35,7 +35,7 @@ def advance(c_Tc,c_Tr,mu_Tc,mu_Tr,lb_tc,lb_Tr,thrdiv_Tr,starv_Tc,thrstarv_Tc,a_T
 	print('t=',timenow)
 	
 	receptors_Tc,timelives_Tc,receptors_Tr,timelives_Tr=death_division_starvation(mu_Tc,mu_Tr,lb_tc,lb_Tr,thrdiv_Tr,starv_Tc,thrstarv_Tc,dt,timenow,receptors_Tc,timelives_Tc,receptors_Tr,timelives_Tr)
-	immigration(a_Tc,a_Tr,dt,timenow)
+	activation(a_Tc,a_Tr,dt,timenow)
 	R=IL2consumption_IL2production_IL2Rupregulation(c_Tc,c_Tr,p_Tc,u_Tc,u_Tr,dt,timenow)
 	return(R,receptors_Tc,timelives_Tc,receptors_Tr,timelives_Tr)
 ################### ANIMATE and PLOT ###########################################
